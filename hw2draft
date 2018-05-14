@@ -1,0 +1,158 @@
+library(ggplot2)
+library(lme4)
+library(dplyr)
+shva <- read.csv('/Users/kanami/Desktop/duryagin_ReductionRussian.txt', sep = '\t')
+
+## 1.1
+ggplot(data, aes(f2, f1))+
+  geom_point(aes(col = vowel))+
+  scale_y_reverse()+
+  scale_x_reverse()
+
+## 1.2
+ggplot(data, aes(vowel, f1))+
+  geom_boxplot(aes(fill = vowel))+
+  coord_flip()
+
+ggplot(data, aes(vowel, f2))+
+  geom_boxplot(aes(fill = vowel))+
+  coord_flip()
+
+## 1.3
+boxplot(data$f1[data$vowel == 'a'])$out
+
+## 1.4
+cor.test(shva$f1, shva$f2)
+
+##1.5
+cor.test(shva$f1[shva$vowel == 'a'], shva$f2[shva$vowel == 'a'])
+cor.test(shva$f1[shva$vowel == 'A'], shva$f2[shva$vowel == 'A'])
+cor.test(shva$f1[shva$vowel == 'y'], shva$f2[shva$vowel == 'y'])
+
+## 1.6
+model <- lm(f2 ~ f1, shva)
+## 1.6.1
+summary(model)$call
+## 1.6.2
+summary(model)$adj.r.squared
+## 1.6.3
+ggplot(shva, aes(f2, f1))+
+  geom_point(aes(col = vowel))+
+  scale_y_reverse()+
+  scale_x_reverse()+
+  geom_smooth(method='lm', se = F, col = 'gray')
+
+## 1.7
+mix_model <- lmer(f1 ~ f2 + (1|vowel), data)
+
+## 1.7.1
+summary(mix_model)$call
+
+## 1.7.2
+summary(mix_model)$varcor$vowel[1]
+
+## 1.7.4
+data$mix_pred <- predict(mix_model)
+ggplot(shva, aes(x = f2, y = f1))+
+  geom_point(aes(col = vowel))+
+  scale_y_reverse()+
+  scale_x_reverse()+
+  geom_line(data = shva, aes(x = f2, y = mix_pred, col = vowel), size = 0.7)
+
+
+## 2. English Lexicon Project data
+elp <- read.csv('/Users/kanami/Desktop//ELP.csv', sep = ',')
+
+## 2.1
+cor_matrix <- elp %>% select_if(is.numeric) %>% cor
+max_cor <- max(cor_matrix[lower.tri(cor_matrix)])
+rownames(which(cor_matrix == max_cor, arr.ind=TRUE))
+
+## 2.2
+ggplot(elp, aes(SUBTLWF, Mean_RT))+
+  geom_point(aes(col = Length))+
+  scale_color_continuous(low = "lightblue", high = "red")+
+  facet_wrap(~ POS)+
+  theme(axis.text.x = element_text(angle = 90, hjust = 1))+
+  coord_trans(x = "log10")
+
+## 2.3
+model2 <- lm(Mean_RT ~ log(SUBTLWF) + POS, elp)
+## 2.3.1
+summary(model2)$call
+## 2.3.2
+summary(model2)$adj.r.squared
+## 2.3.3
+ggplot(elp, aes(log(SUBTLWF), Mean_RT))+
+  geom_point(aes(col = Length))+
+  scale_color_continuous(low = "lightblue", high = "red")+
+  geom_smooth(method='lm', se = F, col = 'gray')
+
+## 2.4
+mix_model2 <- lmer(Mean_RT ~ log(SUBTLWF) + (1|POS), data2)
+## 2.4.1
+summary(mix_model2)$call
+## 2.4.2
+summary(mix_model2)$varcor$POS[1]
+## 2.4.3
+data2$mix_pred <- predict(mix_model2)
+ggplot(data2, aes(log(SUBTLWF), Mean_RT))+
+  geom_point(aes(col = POS))+
+  facet_wrap(~ POS)+
+  geom_line(data = data2, aes(x = log(SUBTLWF), y = mix_pred), col = 'black', size = 0.7)
+
+## 3.0
+d_caus <- read.csv('/Users/kanami/Desktop/dutch_causatives.csv', sep = '\t')
+
+
+### 3.1 We are going to test whether the association between `Aux` and other categorical variables (`Aux` ~ `CrSem`, `Aux` ~ `CeSem`, etc) is statistically significant. The assiciation with which variable should be analysed using Fisher's Exact Test and not using Pearson's Chi-squared Test? Is this association statistically significant?
+```{r 3.1}
+
+
+
+### 3.2. Test the hypothesis that `Aux` and `EPTrans` are not independent with the help of Pearson's Chi-squared Test. 
+```{r 3.2}
+
+```
+
+### 3.3 Provide expected values for Pearson's Chi-squared Test of `Aux` and `EPTrans` variables.
+```{r 3.3}
+
+```
+
+### 3.4. Calculate the odds ratio.
+```{r 3.4}
+
+
+```
+
+### 3.5 Calculate effect size for this test using Cramer's V (phi).
+```{r 3.5}
+
+```
+
+### 3.6. Report the results of independence test using the following template:
+```
+We have / have not found a significant association between variables ... and ... (p < 0.001).  The odds of ... were ... times higher / lower in (group ....) than in (group ....). Effect size is large / medium / small (Cramer's V = ....).
+```
+
+### 3.7 Visualize the distribution using mosaic plot.
+Use `mosaic()` function from `vcd` library.
+```{r 3.7}
+
+```
+
+Below is an example of how to use mosaic() with three variables.
+```{r 3.7.1}
+# mosaic(~ Aux + CrSem + Country, data=d_caus, shade=TRUE, legend=TRUE)
+```
+
+### 3.8 Why is it not recommended to run multiple Chisq tests of independence on different variables within your dataset whithout adjusting for the multiplicity? (i.e. just testing all the pairs of variables one by one)  
+```
+
+```
+
+### 3.9 Provide a short text (300 words) describing the hypothesis on this study and the results of your analysis.
+```{r 3.9}
+
+```
